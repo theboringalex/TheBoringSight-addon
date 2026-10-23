@@ -1,0 +1,62 @@
+name: TheBoringSight
+version: "0.1.0"
+slug: theboringsight
+description: Palantir-style ontology, forecasts, predictive maintenance and governed actions for Home Assistant
+url: https://github.com/theboringalex/TheBoringSight-addon
+arch:
+  - amd64
+  - aarch64
+init: false
+startup: application
+boot: auto
+homeassistant_api: true
+ingress: true
+ingress_port: 8080
+panel_icon: mdi:eye-circle-outline
+panel_title: Sight
+ports:
+  8080/tcp: null
+ports_description:
+  8080/tcp: "Web UI without ingress (leave disabled, or set an api_key)"
+options:
+  ha_url: ""
+  ha_token: ""
+  timezone: "Europe/Berlin"
+  backfill_days: 28
+  retention_days: 90
+  analysis_interval_sec: 300
+  anomaly_z: 4.0
+  battery_warn: 20
+  battery_crit: 10
+  open_door_min: 30
+  open_window_min: 240
+  actions_enabled: false
+  allowed_services: "persistent_notification.create,climate.turn_off,light.turn_off"
+  api_key: ""
+  ai_provider: "none"
+  anthropic_api_key: ""
+  anthropic_model: ""
+  gemini_api_key: ""
+  gemini_model: "gemini-2.5-flash"
+  log_level: "INFO"
+schema:
+  ha_url: str?
+  ha_token: password?
+  timezone: str
+  backfill_days: int(0,365)
+  retention_days: int(7,730)
+  analysis_interval_sec: int(60,3600)
+  anomaly_z: float(2,10)
+  battery_warn: int(5,50)
+  battery_crit: int(1,30)
+  open_door_min: int(1,1440)
+  open_window_min: int(1,1440)
+  actions_enabled: bool
+  allowed_services: str
+  api_key: password?
+  ai_provider: list(none|anthropic|gemini)
+  anthropic_api_key: password?
+  anthropic_model: str?
+  gemini_api_key: password?
+  gemini_model: str
+  log_level: list(DEBUG|INFO|WARNING|ERROR)
