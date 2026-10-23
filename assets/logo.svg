@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Dark Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Neon Sight Gradient (Cyan to Electric Violet) -->
+    <linearGradient id="sightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+
+    <!-- Subtle Glow Filter -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Container Base (App Icon Squircle) -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="#1e293b" stroke-width="4" />
+
+  <!-- Subtle PCB Circuit / Neural Vision Traces -->
+  <g opacity="0.12" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M 80 120 L 140 120 L 180 160" />
+    <circle cx="80" cy="120" r="3" fill="#38bdf8" />
+    
+    <path d="M 432 120 L 372 120 L 332 160" />
+    <circle cx="432" cy="120" r="3" fill="#38bdf8" />
+
+    <path d="M 80 320 L 150 320 L 190 280" />
+    <circle cx="80" cy="320" r="3" fill="#38bdf8" />
+
+    <path d="M 432 320 L 362 320 L 322 280" />
+    <circle cx="432" cy="320" r="3" fill="#38bdf8" />
+  </g>
+
+  <!-- Optical Viewfinder / Detection Brackets (Corner Marks) -->
+  <g stroke="url(#sightGrad)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.75">
+    <!-- Top-Left -->
+    <path d="M 120 160 L 120 130 L 150 130" />
+    <!-- Top-Right -->
+    <path d="M 392 160 L 392 130 L 362 130" />
+    <!-- Bottom-Left -->
+    <path d="M 120 280 L 120 310 L 150 310" />
+    <!-- Bottom-Right -->
+    <path d="M 392 280 L 392 310 L 362 310" />
+  </g>
+
+  <!-- Radar / Focal Rings -->
+  <g fill="none" stroke="#0ea5e9" opacity="0.25" stroke-width="2">
+    <circle cx="256" cy="220" r="115" stroke-dasharray="6 8" />
+    <circle cx="256" cy="220" r="85" />
+  </g>
+
+  <!-- Central "Sight" Core: Digital Aperture & Eye Iris -->
+  <g filter="url(#neonGlow)">
+    <!-- Hexagonal Aperture Outline -->
+    <polygon points="256,135 330,178 330,262 256,305 182,262 182,178" fill="none" stroke="url(#sightGrad)" stroke-width="12" stroke-linejoin="round" />
+
+    <!-- Aperture Blades / Iris Shutter -->
+    <path d="M 256 135 L 285 200" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+    <path d="M 330 178 L 290 235" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+    <path d="M 330 262 L 260 255" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+    <path d="M 256 305 L 227 240" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+    <path d="M 182 262 L 222 205" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+    <path d="M 182 178 L 252 185" stroke="url(#sightGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+
+    <!-- Pupil / AI Sensor Node -->
+    <circle cx="256" cy="220" r="26" fill="#020617" stroke="url(#sightGrad)" stroke-width="6" />
+    <circle cx="256" cy="220" r="10" fill="#00f0ff" />
+    
+    <!-- Crosshair Target Center -->
+    <line x1="256" y1="185" x2="256" y2="198" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" />
+    <line x1="256" y1="242" x2="256" y2="255" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" />
+    <line x1="221" y1="220" x2="234" y2="220" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" />
+    <line x1="278" y1="220" x2="291" y2="220" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Typography -->
+  <text x="256" y="405" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, &#39;Helvetica Neue&#39;, sans-serif" font-size="24" font-weight="800" letter-spacing="4" fill="#f8fafc">
+    THEBORING<tspan fill="#00f0ff">SIGHT</tspan>
+  </text>
+  <text x="256" y="435" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, &#39;Helvetica Neue&#39;, sans-serif" font-size="12" font-weight="600" letter-spacing="6" fill="#64748b">
+    HOME ASSISTANT ADDON
+  </text>
+</svg>
