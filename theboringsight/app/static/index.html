@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TheBoringSight</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#111418;--panel:#1c2127;--panel2:#252a31;--line:#2f343c;--tx:#e5e8eb;--mut:#9aa4b0;--blue:#4c90f0;--crit:#e76a6e;--warn:#ec9a3c;--info:#4c90f0;--ok:#32a467}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:20px;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{font-weight:700;letter-spacing:.3px}.logo b{color:var(--blue)}
+nav{display:flex;gap:4px}
+nav button{background:none;border:0;color:var(--mut);padding:8px 12px;border-radius:4px;cursor:pointer;font:inherit}
+nav button:hover{background:var(--panel2);color:var(--tx)}
+nav button.on{background:var(--panel2);color:var(--tx);box-shadow:inset 0 -2px 0 var(--blue)}
+#pill{margin-left:auto;font-size:12px;color:var(--mut);display:flex;gap:8px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--crit);display:inline-block}.dot.ok{background:var(--ok)}
+main{padding:20px;max-width:1500px;margin:0 auto}
+h2{margin:0 0 12px;font-size:15px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.grid{display:grid;gap:12px}.kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.kpi .v{font-size:26px;font-weight:600}.kpi .l{color:var(--mut);font-size:12px}
+.areas{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));margin-bottom:22px}
+.area{cursor:pointer;display:flex;gap:12px;align-items:center}.area:hover{border-color:var(--blue)}
+.ring{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-weight:600;flex:none}
+.ring i{width:42px;height:42px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-style:normal}
+.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--panel2);color:var(--mut);margin-right:4px}
+.sev-critical{color:var(--crit)}.sev-warning{color:var(--warn)}.sev-info{color:var(--info)}
+.case{display:flex;gap:12px;margin-bottom:10px;border-left:3px solid var(--info)}
+.case.critical{border-left-color:var(--crit)}.case.warning{border-left-color:var(--warn)}
+.case .t{font-weight:600}.case .d{color:var(--mut);margin:2px 0 8px}
+.case .st{opacity:.6}
+button.b{background:var(--panel2);color:var(--tx);border:1px solid var(--line);padding:5px 11px;border-radius:4px;cursor:pointer;font:inherit}
+button.b:hover{border-color:var(--blue)}button.b.p{background:var(--blue);border-color:var(--blue);color:#fff}
+.split{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+.list{max-height:calc(100vh - 190px);overflow:auto}
+.row{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.row:hover,.row.on{background:var(--panel2)}.row .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .s{color:var(--mut);white-space:nowrap}
+input,select,textarea{background:var(--panel2);color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:7px 9px;font:inherit}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--blue)}
+.filters{display:flex;gap:6px;margin-bottom:10px}.filters input{flex:1;min-width:0}
+table{border-collapse:collapse;width:100%}td,th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:500}
+.kv td:first-child{color:var(--mut);width:140px}
+.sub{color:var(--mut);font-size:12px}
+.heat td{padding:0;border:1px solid var(--bg);height:20px;min-width:16px}.heat th{font-size:10px;padding:0 2px;text-align:center}
+.rel{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);cursor:pointer}.rel:hover{color:var(--blue)}
+pre.ans{white-space:pre-wrap;font:inherit;margin:0}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--panel2);border:1px solid var(--blue);padding:10px 14px;border-radius:6px;max-width:420px;display:none;z-index:9}
+svg text{fill:var(--tx);font-size:10px}
+.node{cursor:pointer}.node:hover circle{stroke:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:1100px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">◉ The<b>Boring</b>Sight</div>
+  <nav id="nav">
+    <button data-v="tower">Control Tower</button>
+    <button data-v="objects">Ontology</button>
+    <button data-v="insights">Cases</button>
+    <button data-v="ask">Ask</button>
+    <button data-v="audit">Audit</button>
+  </nav>
+  <div id="pill"></div>
+</header>
+<main id="view"></main>
+<div id="toast"></div>
+<script>
+const $=(s,e=document)=>e.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let KEY=localStorage.getItem('sight_key')||'';
+async function api(path,opt={}){
+  const h={...(opt.headers||{})}; if(KEY)h['X-API-Key']=KEY;
+  const r=await fetch(path,{...opt,headers:h});
+  if(r.status===401){const k=prompt('API key required:'); if(k){KEY=k;localStorage.setItem('sight_key',k);return api(path,opt);} throw new Error('unauthorized');}
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  return r.json();
+}
+const fmt=ts=>ts?new Date(ts*1000).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
+const ago=ts=>{if(!ts)return'–';const m=(Date.now()/1000-ts)/60;return m<90?Math.round(m)+' min':m<2880?(m/60).toFixed(1)+' h':Math.round(m/1440)+' d'};
+function toast(msg){const t=$('#toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',5000)}
+const sevColor=s=>({critical:'var(--crit)',warning:'var(--warn)',info:'var(--info)'}[s]);
+const scoreColor=s=>s>=90?'var(--ok)':s>=70?'var(--warn)':'var(--crit)';
+
+let V='tower', OBJ={type:'',q:'',area:'',sel:null}, charts={};
+function go(v,opts){V=v;if(opts)Object.assign(OBJ,opts);document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));render()}
+$('#nav').onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
+async function render(){
+  const el=$('#view');
+  try{ await ({tower:vTower,objects:vObjects,insights:vInsights,ask:vAsk,audit:vAudit})[V](el); }
+  catch(e){el.innerHTML='<div class="card">Error: '+esc(e.message)+'</div>'}
+}
+
+/* ---------------------------------------------------------------- status */
+async function pill(){
+  try{
+    const s=await api('api/status'); const c=s.connectors.homeassistant||{};
+    $('#pill').innerHTML=`<span class="dot ${c.connected?'ok':''}"></span>Home Assistant ${c.connected?'connected':'offline'} · backfill ${esc(c.backfill)} · AI: ${esc(s.ai_provider)} · actions: ${s.actions_enabled?'<b style="color:var(--warn)">LIVE</b>':'dry-run'}`;
+  }catch(e){$('#pill').textContent='API unreachable'}
+}
+
+/* ----------------------------------------------------------- control tower */
+async function vTower(el){
+  const [ov,st,cs]=await Promise.all([api('api/overview'),api('api/status'),api('api/insights?status=open&limit=6')]);
+  const objs=Object.values(ov.types).reduce((a,b)=>a+b,0), days=st.data.oldest?((Date.now()/1000-st.data.oldest)/86400).toFixed(1):'0';
+  const la=st.last_analysis;
+  el.innerHTML=`
+  <div class="grid kpis">
+    <div class="card kpi"><div class="v">${objs}</div><div class="l">Ontology objects · ${Object.entries(ov.types).map(([k,v])=>k+' '+v).join(' · ')}</div></div>
+    <div class="card kpi"><div class="v"><span class="sev-critical">${ov.cases.critical}</span> / <span class="sev-warning">${ov.cases.warning}</span> / <span class="sev-info">${ov.cases.info}</span></div><div class="l">Open cases · critical / warning / info</div></div>
+    <div class="card kpi"><div class="v">${st.data.state_rows.toLocaleString('de-DE')}</div><div class="l">Time-series rows · ${days} days of history</div></div>
+    <div class="card kpi"><div class="v">${la?ago(la.ts):'–'}</div><div class="l">Last analysis run ${la?'· '+la.detected+' detections':''} <button class="b" onclick="runNow()">Run now</button></div></div>
+  </div>
+  <h2>Area health</h2>
+  <div class="grid areas">${ov.areas.map(a=>`
+    <div class="card area" onclick="go('objects',{type:'',q:'',area:'${esc(a.id)}',sel:null})">
+      <div class="ring" style="background:conic-gradient(${scoreColor(a.score)} ${a.score*3.6}deg,var(--panel2) 0)"><i>${a.score}</i></div>
+      <div><div><b>${esc(a.name)}</b></div><div class="sub">${a.objects} objects</div>
+      <div>${a.cases.critical?`<span class="chip sev-critical">${a.cases.critical} crit</span>`:''}${a.cases.warning?`<span class="chip sev-warning">${a.cases.warning} warn</span>`:''}${a.cases.info?`<span class="chip sev-info">${a.cases.info} info</span>`:''}</div></div>
+    </div>`).join('')||'<div class="card sub">No areas yet - assign entities to areas in Home Assistant.</div>'}</div>
+  <div class="two">
+    <div><h2>Top cases</h2>${cs.map(caseCard).join('')||'<div class="card sub">No open cases 🎉</div>'}<button class="b" onclick="go('insights')">All cases →</button></div>
+    <div><h2>People</h2><div class="card">${ov.people.map(p=>`<div class="rel" onclick="go('objects',{sel:'entity:${esc(p.id)}'})"><span>${esc(p.name)}</span><span class="${p.state==='home'?'':'sub'}">${esc(p.state)} · ${ago(p.since)}</span></div>`).join('')||'<span class="sub">No person entities</span>'}</div></div>
+  </div>`;
+}
+async function runNow(){const r=await api('api/analysis/run',{method:'POST'});toast('Analysis: '+r.detected+' detections, '+r.created+' new, '+r.resolved+' resolved');render()}
+
+/* ----------------------------------------------------------------- cases */
+function caseCard(c){
+  const p=c.proposal||{};
+  return `<div class="card case ${c.severity}"><div style="flex:1">
+    <div class="t"><span class="sev-${c.severity}">●</span> ${esc(c.title)} <span class="chip">${esc(c.kind)}</span>${c.status!=='open'?`<span class="chip st">${esc(c.status)}</span>`:''}</div>
+    <div class="d">${esc(c.detail)}</div>
+    <div class="sub" style="margin-bottom:8px">${c.area?esc(c.area)+' · ':''}updated ${ago(c.updated)} ago${c.entity_id?` · <a href="#" style="color:var(--blue)" onclick="go('objects',{sel:'entity:${esc(c.entity_id)}'});return false">${esc(c.entity_id)}</a>`:''}</div>
+    ${['open','ack'].includes(c.status)?`${c.status==='open'?`<button class="b" onclick="caseAct(${c.id},'ack')">Acknowledge</button> `:''}<button class="b" onclick="caseAct(${c.id},'dismiss')">Dismiss</button> ${p.label?`<button class="b p" onclick="caseAct(${c.id},'approve')">${esc(p.label)}</button>`:''}`:''}
+  </div></div>`;
+}
+async function caseAct(id,a){
+  const r=await api(`api/insights/${id}/${a}`,{method:'POST'});
+  if(a==='approve') toast(r.dry_run?'Dry run: '+r.message:r.ok?'Executed '+r.service+' (HTTP '+r.http_status+')':'Failed: '+r.error);
+  render();
+}
+async function vInsights(el){
+  const f=window._insf||'open';
+  const rows=await api('api/insights?status='+f+'&limit=200');
+  el.innerHTML=`<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><h2 style="margin:0">Cases</h2>
+    <select onchange="window._insf=this.value;render()">${['open','all','resolved','dismissed','actioned'].map(x=>`<option ${x===f?'selected':''}>${x}</option>`).join('')}</select>
+    <button class="b" onclick="runNow()">Run analysis</button></div>
+    ${rows.map(caseCard).join('')||'<div class="card sub">Nothing here.</div>'}`;
+}
+
+/* -------------------------------------------------------------- ontology */
+async function vObjects(el){
+  const qs=new URLSearchParams({type:OBJ.type,q:OBJ.q,area:OBJ.area,limit:300});
+  const list=await api('api/ontology/objects?'+qs);
+  const types=['','Area','Device','Sensor','BinarySensor','Actuator','Person','Tracker','Weather'];
+  el.innerHTML=`<div class="split"><div>
+    <div class="filters"><input id="q" placeholder="Search objects…" value="${esc(OBJ.q)}"><select id="ty">${types.map(t=>`<option value="${t}" ${t===OBJ.type?'selected':''}>${t||'all types'}</option>`).join('')}</select></div>
+    ${OBJ.area?`<div class="sub" style="margin-bottom:6px">Area filter: ${esc(OBJ.area)} <a href="#" style="color:var(--blue)" onclick="OBJ.area='';render();return false">clear</a></div>`:''}
+    <div class="card list" style="padding:0">${list.map(o=>`<div class="row ${o.id===OBJ.sel?'on':''}" data-id="${esc(o.id)}"><span class="n"><span class="chip">${esc(o.type)}</span>${esc(o.name)}</span><span class="s">${o.live?esc(o.live.state)+' '+esc(o.live.unit||''):''}</span></div>`).join('')||'<div class="sub" style="padding:12px">No objects</div>'}</div>
+  </div><div id="detail"><div class="card sub">Select an object to explore its links, history, forecast and cases.</div></div></div>`;
+  $('#q').oninput=e=>{OBJ.q=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(render,300)};
+  $('#ty').onchange=e=>{OBJ.type=e.target.value;render()};
+  el.querySelectorAll('.row').forEach(r=>r.onclick=()=>{OBJ.sel=r.dataset.id;el.querySelectorAll('.row').forEach(x=>x.classList.toggle('on',x===r));showObject(OBJ.sel)});
+  if(OBJ.sel)showObject(OBJ.sel);
+}
+function graph(o){
+  const nb=[...o.out.map(x=>({...x,d:'→'})),...o.in.map(x=>({...x,d:'←'}))].slice(0,20), W=520,H=300,cx=W/2,cy=H/2,R=115;
+  const col={Area:'#32a467',Device:'#9aa4b0',Sensor:'#4c90f0',BinarySensor:'#8f7ee7',Actuator:'#ec9a3c',Person:'#e76a6e',Home:'#fff'};
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  nb.forEach((n,i)=>{const a=2*Math.PI*i/nb.length-Math.PI/2,x=cx+R*1.5*Math.cos(a),y=cy+R*Math.sin(a);n.x=x;n.y=y;
+    s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#444"/><text x="${(cx+x)/2}" y="${(cy+y)/2}" text-anchor="middle" fill="#888" style="font-size:8px">${esc(n.rel)}</text>`});
+  nb.forEach(n=>{s+=`<g class="node" onclick="OBJ.sel='${esc(n.id)}';render()"><circle cx="${n.x}" cy="${n.y}" r="9" fill="${col[n.type]||'#666'}"/><text x="${n.x}" y="${n.y+22}" text-anchor="middle">${esc((n.name||n.id).slice(0,22))}</text></g>`});
+  s+=`<circle cx="${cx}" cy="${cy}" r="13" fill="${col[o.type]||'#4c90f0'}" stroke="#fff"/><text x="${cx}" y="${cy-19}" text-anchor="middle" style="font-size:11px;font-weight:600">${esc(o.name.slice(0,28))}</text></svg>`;
+  return s;
+}
+async function showObject(id){
+  const box=$('#detail'); if(!box)return;
+  const o=await api('api/ontology/object/'+encodeURIComponent(id));
+  const eid=id.startsWith('entity:')?id.slice(7):null, p=o.props||{}, lv=o.live||{};
+  const numeric=eid&&lv.state!==undefined&&lv.state!==''&&!isNaN(parseFloat(lv.state))&&(p.domain==='sensor');
+  const isEnergy=numeric&&p.device_class==='energy'&&['total','total_increasing'].includes(p.state_class);
+  const isBin=eid&&(p.domain==='binary_sensor'||p.domain==='person'||p.domain==='device_tracker'||p.domain==='light'||p.domain==='switch');
+  box.innerHTML=`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px"><div><div style="font-size:18px;font-weight:600">${esc(o.name)}</div><div class="sub"><span class="chip">${esc(o.type)}</span>${esc(o.id)}</div></div>
+    ${eid?`<div style="text-align:right"><div style="font-size:22px;font-weight:600">${esc(lv.state)} ${esc(lv.unit||'')}</div><div class="sub">since ${ago(lv.last_changed)}</div></div>`:''}</div>
+    ${o.cases.length?`<div style="margin-top:8px">${o.cases.map(c=>`<span class="chip sev-${c.severity}">● ${esc(c.title)}</span>`).join('')}</div>`:''}</div>
+    <div class="two"><div class="card"><h2>Properties</h2><table class="kv">${Object.entries(p).filter(([k,v])=>v!==null&&v!=='').map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></div>
+    <div class="card"><h2>Links</h2>${graph(o)}</div></div>
+    <div id="an"></div>`;
+  const an=$('#an');
+  if(isEnergy){
+    const e=await api('api/energy/'+eid); const d=e.daily, mx=Math.max(...d.map(x=>x.kwh),1);
+    an.innerHTML=`<div class="card" style="margin-top:12px"><h2>Daily consumption (kWh)</h2>${e.projection?`<div class="sub" style="margin-bottom:8px">7-day average ${e.projection.avg_last7} kWh · today so far ${e.projection.today_so_far} · <b>projected today ${e.projection.projected_today} kWh</b></div>`:''}
+      <div style="display:flex;align-items:flex-end;gap:4px;height:130px">${d.map(x=>`<div title="${x.date}: ${x.kwh} kWh" style="flex:1;background:${x.complete?'var(--blue)':'var(--panel2)'};height:${Math.max(2,x.kwh/mx*120)}px;border-radius:2px 2px 0 0"></div>`).join('')}</div></div>`;
+  } else if(numeric){
+    an.innerHTML=`<div class="card" style="margin-top:12px"><h2>History &amp; forecast</h2><canvas id="ch" height="110"></canvas><div id="bt" class="sub" style="margin-top:6px"></div></div>
+      <div class="card" style="margin-top:12px"><h2>Related signals <button class="b" onclick="related('${esc(eid)}')">Analyse</button></h2><div id="rel" class="sub">De-seasonalised correlation with other sensors (link analysis).</div></div>`;
+    const [h,f]=await Promise.all([api('api/series/'+eid+'?hours=72'),api('api/forecast/'+eid+'?horizon=24')]);
+    drawChart(h,f); if(f.backtest)$('#bt').innerHTML=`Model check on the last 24 h: error <b>${f.backtest.mae_model}</b> vs. ${f.backtest.mae_persistence} for "stays the same" and ${f.backtest.mae_yesterday} for "same as yesterday" (mean absolute error).`;
+    if(p.device_class==='battery'){const b=await api('api/battery/'+eid); if(b)$('#bt').innerHTML+=`<br>Battery trend: ${b.slope_per_day} %/day`+(b.days_to_empty!==undefined?` · empty in ~${b.days_to_empty} days`:'')}
+  } else if(isBin){
+    try{ const pr=await api('api/presence/'+eid); drawHeat(an,pr,p.domain)}catch(e){an.innerHTML=`<div class="card sub" style="margin-top:12px">No history yet.</div>`}
+  }
+}
+function drawChart(h,f){
+  if(charts.ch)charts.ch.destroy();
+  const lab=[...h.map(x=>x.ts),...f.points.map(x=>x.ts)].map(t=>new Date(t*1000).toLocaleString('de-DE',{weekday:'short',hour:'2-digit'})+'h');
+  const n=h.length, pad=a=>[...Array(n).fill(null),...a];
+  const last=h.length?h[h.length-1].mean:null;
+  const ds=[{label:'measured (hourly mean)',data:[...h.map(x=>x.mean),...f.points.map(()=>null)],borderColor:'#4c90f0',pointRadius:0,tension:.2},
+   {label:'forecast',data:[...Array(Math.max(n-1,0)).fill(null),last,...f.points.map(x=>x.yhat)],borderColor:'#ec9a3c',borderDash:[5,4],pointRadius:0,tension:.2},
+   {label:'80% band hi',data:pad(f.points.map(x=>x.hi)),borderColor:'transparent',backgroundColor:'rgba(236,154,60,.15)',pointRadius:0,fill:'+1'},
+   {label:'80% band lo',data:pad(f.points.map(x=>x.lo)),borderColor:'transparent',pointRadius:0}];
+  charts.ch=new Chart($('#ch'),{type:'line',data:{labels:lab,datasets:ds},options:{responsive:true,animation:false,plugins:{legend:{labels:{color:'#9aa4b0',filter:i=>!i.text.includes('band')}}},scales:{x:{ticks:{color:'#9aa4b0',maxTicksLimit:12},grid:{color:'#2f343c'}},y:{ticks:{color:'#9aa4b0'},grid:{color:'#2f343c'}}}}});
+}
+function drawHeat(an,pr,dom){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let t=`<table class="heat"><tr><th></th>${[...Array(24).keys()].map(h=>`<th>${h}</th>`).join('')}</tr>`;
+  days.forEach((d,i)=>{t+=`<tr><th>${d}</th>`;for(let h=0;h<24;h++){const v=pr.profile[i*24+h];t+=`<td title="${d} ${h}:00 – ${v===null?'no data':Math.round(v*100)+'%'}" style="background:${v===null?'transparent':`rgba(76,144,240,${Math.max(.04,v)})`}"></td>`}t+='</tr>'});
+  t+='</table>';
+  const nx=pr.next24.map(x=>x.p===null?0:x.p);
+  an.innerHTML=`<div class="card" style="margin-top:12px"><h2>${dom==='person'?'Typical presence':'Typical activity'} by hour of week (${pr.weeks} weeks)</h2>${t}
+   <h2 style="margin-top:14px">Next 24 h (probability)</h2><div style="display:flex;gap:2px;align-items:flex-end;height:70px">${pr.next24.map(x=>`<div title="${new Date(x.ts*1000).getHours()}:00 – ${x.p===null?'n/a':Math.round(x.p*100)+'%'}" style="flex:1;background:var(--blue);height:${Math.max(2,(x.p||0)*66)}px;border-radius:2px 2px 0 0"></div>`).join('')}</div></div>`;
+}
+async function related(eid){
+  $('#rel').textContent='Analysing…';
+  const r=await api('api/correlations/'+eid);
+  $('#rel').innerHTML=r.length?r.map(x=>`<div class="rel" onclick="OBJ.sel='entity:${esc(x.entity_id)}';render()"><span>${esc(x.name)}</span><span style="color:${x.r>0?'var(--ok)':'var(--warn)'}">r = ${x.r} <span class="sub">(${x.n} h)</span></span></div>`).join(''):'Not enough overlapping data yet.';
+}
+
+/* ------------------------------------------------------------------- ask */
+async function vAsk(el){
+  el.innerHTML=`<h2>Ask the ontology</h2><div class="card"><textarea id="qs" rows="3" style="width:100%" placeholder="e.g. Which batteries should I replace soon? Where is heating energy wasted?"></textarea>
+    <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap"><button class="b p" id="go">Ask</button>
+    ${['Give me a briefing','Which batteries need replacing?','Is anything unusual in the Wohnzimmer?','What does the next 24 hours look like?'].map(s=>`<button class="b" onclick="$('#qs').value='${s}';$('#go').click()">${s}</button>`).join('')}</div>
+    <pre class="ans" id="ans"></pre><div class="sub" id="prov"></div></div>`;
+  $('#go').onclick=async()=>{const q=$('#qs').value.trim();if(!q)return;$('#ans').textContent='…';
+    const r=await api('api/ask',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:q})});
+    $('#ans').textContent=r.answer;$('#prov').textContent='source: '+r.provider+' · '+r.context_objects+' objects in context'};
+}
+
+/* ----------------------------------------------------------------- audit */
+async function vAudit(el){
+  const rows=await api('api/audit?limit=150');
+  el.innerHTML=`<h2>Audit trail</h2><div class="card"><table><tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th><th>Result</th></tr>
+   ${rows.map(a=>`<tr><td>${fmt(a.ts)}</td><td>${esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.target)}</td><td class="sub">${esc(a.result)}</td></tr>`).join('')||'<tr><td colspan=5 class="sub">No actions yet.</td></tr>'}</table></div>`;
+}
+
+pill(); setInterval(pill,15000); setInterval(()=>{if(['tower','insights'].includes(V))render()},30000);
+go('tower');
+</script>
+</body>
+</html>
