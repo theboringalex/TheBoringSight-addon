@@ -17,7 +17,7 @@ Open it from the **Sight** entry in the sidebar.
 | `actions_enabled` | `false` = dry run. Proposals are shown and audited, nothing is sent to Home Assistant |
 | `allowed_services` | Allow-list of services a case may call |
 | `api_key` | Only needed if you expose the optional direct port |
-| `ai_provider` | `none`, `anthropic` or `gemini`, plus the matching key (and model id for `anthropic`) |
+| `ai_provider` | `none`, `anthropic` or `gemini`, plus the matching key |
 
 ## Notes
 
